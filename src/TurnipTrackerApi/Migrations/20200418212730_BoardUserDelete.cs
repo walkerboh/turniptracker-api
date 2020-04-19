@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace TurnipTrackerApi.Migrations
+namespace TurnipTallyApi.Migrations
 {
     public partial class BoardUserDelete : Migration
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TurnipTrackerApi.Database.Entities
+namespace TurnipTallyApi.Database.Entities
 {
     public class Week
     {

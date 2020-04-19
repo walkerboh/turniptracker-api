@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TurnipTrackerApi.Database.Entities
+namespace TurnipTallyApi.Database.Entities
 {
     public class Record
     {

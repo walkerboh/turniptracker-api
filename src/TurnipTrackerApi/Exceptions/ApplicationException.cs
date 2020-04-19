@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TurnipTrackerApi.Exceptions
+namespace TurnipTallyApi.Exceptions
 {
     public class ApplicationException : Exception
     {

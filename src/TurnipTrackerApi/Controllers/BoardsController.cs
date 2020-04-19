@@ -1,16 +1,16 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using TurnipTrackerApi.Database;
-using TurnipTrackerApi.Database.Entities;
-using TurnipTrackerApi.Extensions;
-using TurnipTrackerApi.Models.Boards;
+using TurnipTallyApi.Database;
+using TurnipTallyApi.Database.Entities;
+using TurnipTallyApi.Extensions;
+using TurnipTallyApi.Models.Boards;
 
-namespace TurnipTrackerApi.Controllers
+namespace TurnipTallyApi.Controllers
 {
     [Authorize]
     [Route("[controller]")]

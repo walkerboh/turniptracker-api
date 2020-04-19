@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-using TurnipTrackerApi.Database.Entities;
+using TurnipTallyApi.Database.Entities;
 
-namespace TurnipTrackerApi.Database
+namespace TurnipTallyApi.Database
 {
     public class TurnipContext : DbContext
     {

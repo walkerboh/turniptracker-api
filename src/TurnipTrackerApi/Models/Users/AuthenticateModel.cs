@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TurnipTrackerApi.Models.Users
+namespace TurnipTallyApi.Models.Users
 {
     public class AuthenticateModel
     {

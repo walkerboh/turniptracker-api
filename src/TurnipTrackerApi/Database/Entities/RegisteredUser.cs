@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace TurnipTrackerApi.Database.Entities
+namespace TurnipTallyApi.Database.Entities
 {
     public class RegisteredUser
     {

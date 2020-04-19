@@ -3,10 +3,10 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using TurnipTrackerApi.Database;
-using TurnipTrackerApi.Database.Entities;
+using TurnipTallyApi.Database;
+using TurnipTallyApi.Database.Entities;
 
-namespace TurnipTrackerApi.Services
+namespace TurnipTallyApi.Services
 {
     public interface IUserService
     {

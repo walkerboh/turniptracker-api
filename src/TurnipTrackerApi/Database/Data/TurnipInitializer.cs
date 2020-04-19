@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using TurnipTrackerApi.Services;
+using TurnipTallyApi.Services;
 
-namespace TurnipTrackerApi.Database.Data
+namespace TurnipTallyApi.Database.Data
 {
     public static class TurnipInitializer
     {

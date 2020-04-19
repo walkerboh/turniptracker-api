@@ -1,3 +1,5 @@
+using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -7,14 +9,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using TurnipTrackerApi.Database;
-using TurnipTrackerApi.Helpers.Settings;
-using TurnipTrackerApi.Services;
+using TurnipTallyApi.Database;
+using TurnipTallyApi.Helpers.Settings;
+using TurnipTallyApi.Services;
 
-namespace TurnipTrackerApi
+namespace TurnipTallyApi
 {
     public class Startup
     {

@@ -1,4 +1,4 @@
-﻿namespace TurnipTrackerApi.Models.BoardUsers
+﻿namespace TurnipTallyApi.Models.BoardUsers
 {
     public class BoardUserModel
     {

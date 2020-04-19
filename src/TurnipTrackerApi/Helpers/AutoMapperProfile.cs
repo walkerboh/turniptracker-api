@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using TurnipTrackerApi.Database.Entities;
-using TurnipTrackerApi.Models.Boards;
-using TurnipTrackerApi.Models.BoardUsers;
-using TurnipTrackerApi.Models.Users;
+using TurnipTallyApi.Database.Entities;
+using TurnipTallyApi.Models.Boards;
+using TurnipTallyApi.Models.BoardUsers;
+using TurnipTallyApi.Models.Users;
 
-namespace TurnipTrackerApi.Helpers
+namespace TurnipTallyApi.Helpers
 {
     public class AutoMapperProfile : Profile
     {

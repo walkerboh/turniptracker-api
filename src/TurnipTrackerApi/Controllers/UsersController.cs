@@ -1,19 +1,19 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using TurnipTrackerApi.Helpers.Settings;
-using TurnipTrackerApi.Models.Users;
-using TurnipTrackerApi.Services;
-using ApplicationException = TurnipTrackerApi.Exceptions.ApplicationException;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using TurnipTallyApi.Helpers.Settings;
+using TurnipTallyApi.Models.Users;
+using TurnipTallyApi.Services;
+using ApplicationException = TurnipTallyApi.Exceptions.ApplicationException;
 
-namespace TurnipTrackerApi.Controllers
+namespace TurnipTallyApi.Controllers
 {
     [ApiController]
     [Authorize]

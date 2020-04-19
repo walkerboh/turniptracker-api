@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TurnipTrackerApi.Models.Boards
+namespace TurnipTallyApi.Models.Boards
 {
     public class BoardCreateModel
     {

@@ -1,4 +1,4 @@
-﻿namespace TurnipTrackerApi.Helpers.Settings
+﻿namespace TurnipTallyApi.Helpers.Settings
 {
     public class ApplicationSettings
     {

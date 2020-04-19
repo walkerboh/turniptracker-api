@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
-using TurnipTrackerApi.Exceptions;
+using TurnipTallyApi.Exceptions;
 
-namespace TurnipTrackerApi.Extensions
+namespace TurnipTallyApi.Extensions
 {
     public static class ClaimsPrincipalExtensions
     {

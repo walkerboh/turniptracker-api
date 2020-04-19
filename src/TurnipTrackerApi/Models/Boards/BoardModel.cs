@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TurnipTrackerApi.Models.Boards
+namespace TurnipTallyApi.Models.Boards
 {
     public class BoardModel
     {

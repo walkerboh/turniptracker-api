@@ -6,12 +6,12 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TurnipTrackerApi.Database;
-using TurnipTrackerApi.Database.Entities;
-using TurnipTrackerApi.Extensions;
-using TurnipTrackerApi.Models.BoardUsers;
+using TurnipTallyApi.Database;
+using TurnipTallyApi.Database.Entities;
+using TurnipTallyApi.Extensions;
+using TurnipTallyApi.Models.BoardUsers;
 
-namespace TurnipTrackerApi.Controllers
+namespace TurnipTallyApi.Controllers
 {
     [Authorize]
     [Route("boards/{boardId}/users")]

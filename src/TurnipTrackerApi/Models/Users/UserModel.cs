@@ -1,4 +1,4 @@
-﻿namespace TurnipTrackerApi.Models.Users
+﻿namespace TurnipTallyApi.Models.Users
 {
     public class UserModel
     {
