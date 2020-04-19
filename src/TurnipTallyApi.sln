@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TurnipTallyApi", "TurnipTrackerApi\TurnipTallyApi.csproj", "{9D79C971-98EE-4D96-A6A1-04F6681F6E6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TurnipTallyApi.UnitTests", "..\tests\TurnipTallyApi.UnitTests\TurnipTallyApi.UnitTests.csproj", "{1F1C9102-37A3-42E2-960A-420F0F527805}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{9D79C971-98EE-4D96-A6A1-04F6681F6E6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D79C971-98EE-4D96-A6A1-04F6681F6E6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D79C971-98EE-4D96-A6A1-04F6681F6E6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F1C9102-37A3-42E2-960A-420F0F527805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F1C9102-37A3-42E2-960A-420F0F527805}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F1C9102-37A3-42E2-960A-420F0F527805}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F1C9102-37A3-42E2-960A-420F0F527805}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
