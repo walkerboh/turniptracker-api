@@ -22,7 +22,7 @@ namespace TurnipTallyApi.Models.Prices
 
         public IEnumerable<PricesRecordModel> Prices { get; set; }
 
-        public PriceModel PriceModel => PriceModel.Get(Prices.ToList());
+        //public PriceModel PriceModel => PriceModel.Get(Prices.ToList());
     }
 
     public class PricesRecordModel
