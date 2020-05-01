@@ -10,5 +10,12 @@ namespace TurnipTallyApi.Models.Boards
 
         [Required]
         public string DisplayName { get; set; }
+
+        public bool Private { get; set; }
+
+        public string Password { get; set; }
+
+        [Required]
+        public string UserDisplayName { get; set; }
     }
 }

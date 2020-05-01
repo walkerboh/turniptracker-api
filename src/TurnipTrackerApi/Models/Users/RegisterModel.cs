@@ -10,5 +10,7 @@ namespace TurnipTallyApi.Models.Users
 
         [Required]
         public string Password { get; set; }
+
+        public string TimezoneId { get; set; } = "UTC";
     }
 }

@@ -16,5 +16,10 @@ namespace TurnipTallyApi.Extensions
             var period = dateTime.Hour < 12 ? Period.AM : Period.PM;
             return (dateTime.DayOfWeek, period);
         }
+
+        public static DateTime NowInLocale(string timezoneId)
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(timezoneId));
+        }
     }
 }

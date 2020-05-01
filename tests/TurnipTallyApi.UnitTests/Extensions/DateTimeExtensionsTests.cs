@@ -18,13 +18,21 @@ namespace TurnipTallyApi.UnitTests.Extensions
         };
 
         [Fact]
-        public void AllDaysOfWeekReturnSunday()
+        public void ToStartOfWeekAllDaysOfWeekReturnSunday()
         {
             foreach(var date in _weekOfDates)
             {
                 var weekStart = date.ToStartOfWeek();
                 Assert.Equal(new DateTime(2020, 4, 5), weekStart);
             }
+        }
+
+        [Fact]
+        public void NowInLocaleReturnsCorrectTimeForTimezone()
+        {
+            var expected = DateTime.Now.Date;
+            var actual = DateTimeExtensions.NowInLocale(TimeZoneInfo.Local.Id).Date;
+            Assert.Equal(expected, actual);
         }
     }
 }

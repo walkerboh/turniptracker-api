@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,7 +53,8 @@ namespace TurnipTallyApi.Controllers
                     new Claim(ClaimTypes.Email, user.Email)
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
@@ -71,13 +73,20 @@ namespace TurnipTallyApi.Controllers
         {
             try
             {
-                var user = await _userService.Create(model.Email, model.Password);
+                var user = await _userService.Create(model.Email, model.Password, model.TimezoneId);
                 return CreatedAtAction(nameof(GetById), new {id = user.Id}, new {user.Id, user.Email});
             }
             catch (ApplicationException ex)
             {
                 return BadRequest(new {message = ex.Message});
             }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("timezones")]
+        public IActionResult Timezones()
+        {
+            return Ok(TimeZoneInfo.GetSystemTimeZones().Select(tz => new {id = tz.Id, name = tz.DisplayName}));
         }
 
         [HttpGet("{id}")]

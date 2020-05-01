@@ -11,7 +11,7 @@ namespace TurnipTallyApi.Services
     public interface IUserService
     {
         RegisteredUser Authenticate(string email, string password);
-        Task<RegisteredUser> Create(string email, string password);
+        Task<RegisteredUser> Create(string email, string password, string timezoneId);
         RegisteredUser GetById(long id);
     }
 
@@ -41,7 +41,7 @@ namespace TurnipTallyApi.Services
             return !VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt) ? null : user;
         }
 
-        public async Task<RegisteredUser> Create(string email, string password)
+        public async Task<RegisteredUser> Create(string email, string password, string timezoneId)
         {
             if (string.IsNullOrEmpty(password))
             {
@@ -59,7 +59,8 @@ namespace TurnipTallyApi.Services
             {
                 Email = email,
                 PasswordHash = hash,
-                PasswordSalt = salt
+                PasswordSalt = salt,
+                TimezoneId = timezoneId
             };
 
             await _context.RegisteredUsers.AddAsync(user);

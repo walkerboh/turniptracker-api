@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +13,7 @@ using TurnipTallyApi.Database;
 using TurnipTallyApi.Database.Entities;
 using TurnipTallyApi.Extensions;
 using TurnipTallyApi.Models.Boards;
+using TurnipTallyApi.Models.BoardUsers;
 
 namespace TurnipTallyApi.Controllers
 {
@@ -33,7 +36,8 @@ namespace TurnipTallyApi.Controllers
         {
             var userId = User.GetUserId();
 
-            var user = await _context.RegisteredUsers.Include(u => u.BoardUsers).Include(u => u.OwnedBoards)
+            var user = await _context.RegisteredUsers.Include(u => u.BoardUsers).ThenInclude(bu => bu.Board)
+                .Include(u => u.OwnedBoards)
                 .SingleOrDefaultAsync(u => u.Id.Equals(userId));
 
             if (user == null)
@@ -65,7 +69,14 @@ namespace TurnipTallyApi.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<BoardModel>(board));
+            var regUserId = User.GetUserId();
+
+            if (board.OwnerId.Equals(regUserId) || board.Users.Any(u => u.RegisteredUserId.Equals(regUserId)))
+            {
+                return Ok(_mapper.Map<BoardModel>(board));
+            }
+
+            return Ok(_mapper.Map<JoinBoardModel>(board));
         }
 
         [HttpGet("{id}")]
@@ -78,7 +89,14 @@ namespace TurnipTallyApi.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<BoardModel>(board));
+            var regUserId = User.GetUserId();
+
+            if (board.OwnerId.Equals(regUserId) || board.Users.Any(u => u.RegisteredUserId.Equals(regUserId)))
+            {
+                return Ok(_mapper.Map<BoardModel>(board));
+            }
+
+            return Ok(_mapper.Map<JoinBoardModel>(board));
         }
 
         [HttpGet("{id}/weeks")]
@@ -110,7 +128,27 @@ namespace TurnipTallyApi.Controllers
                 return BadRequest("Friendly name is already taken");
             }
 
-            board.OwnerId = User.GetUserId();
+            var regUser = await _context.RegisteredUsers.FindAsync(User.GetUserId());
+
+            board.OwnerId = regUser.Id;
+
+            var boardUser = new BoardUser
+            {
+                RegisteredUserId = board.OwnerId,
+                Name = boardModel.UserDisplayName,
+                Weeks = new List<Week>
+                {
+                    new Week
+                    {
+                        WeekDate = DateTimeExtensions.NowInLocale(regUser.TimezoneId).ToStartOfWeek()
+                    }
+                }
+            };
+
+            board.Users = new List<BoardUser>
+            {
+                boardUser
+            };
 
             await _context.Boards.AddAsync(board);
             await _context.SaveChangesAsync();

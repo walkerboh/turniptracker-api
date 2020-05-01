@@ -9,6 +9,8 @@ namespace TurnipTallyApi.Database.Entities
 
         public string Email { get; set; }
 
+        public string TimezoneId { get; set; }
+
         [JsonIgnore]
         public byte[] PasswordHash { get; set; }
 

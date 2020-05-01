@@ -11,13 +11,17 @@ namespace TurnipTallyApi.Helpers
     {
         public AutoMapperProfile()
         {
-            CreateMap<BoardCreateModel, Board>().ForMember(dest => dest.UrlName,
-                opt => opt.MapFrom(src => src.UrlName.ToLowerInvariant()));
+            CreateMap<BoardCreateModel, Board>()
+                .ForMember(dest => dest.UrlName, opt => opt.MapFrom(src => src.UrlName.ToLowerInvariant()))
+                .ForMember(dest => dest.EditKey, opt => opt.MapFrom(src => src.Password));
             CreateMap<RegisterModel, RegisteredUser>();
             CreateMap<RegisteredUser, UserModel>();
             CreateMap<Board, BoardModel>();
+            CreateMap<Board, JoinBoardModel>()
+                .ForMember(dest => dest.PrivateBoard, opt => opt.MapFrom(src => src.Private));
 
-            CreateMap<BoardUser, BoardUserModel>().ForMember(dest=>dest.UserId, opt => opt.MapFrom(src=>src.RegisteredUserId));
+            CreateMap<BoardUser, BoardUserModel>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.RegisteredUserId));
             CreateMap<Board, UserBoardsModel>();
 
             CreateMap<Week, PricesUserModel>()

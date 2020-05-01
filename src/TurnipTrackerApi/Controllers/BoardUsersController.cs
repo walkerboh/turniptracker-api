@@ -71,9 +71,9 @@ namespace TurnipTallyApi.Controllers
                 return NotFound();
             }
 
-            var userId = User.GetUserId();
+            var regUser = await _context.RegisteredUsers.FindAsync(User.GetUserId());
 
-            if(board.Users?.Any(u => u.RegisteredUserId.Equals(userId)) ?? false)
+            if(board.Users?.Any(u => u.RegisteredUserId.Equals(regUser.Id)) ?? false)
             {
                 return BadRequest(new {message = "User is already a member of this board"});
             }
@@ -86,7 +86,14 @@ namespace TurnipTallyApi.Controllers
             var newUser = new BoardUser
             {
                 Name = model.DisplayName,
-                RegisteredUserId = userId
+                RegisteredUser = regUser,
+                Weeks = new List<Week>
+                {
+                    new Week
+                    {
+                        WeekDate = DateTimeExtensions.NowInLocale(regUser.TimezoneId).ToStartOfWeek()
+                    }
+                }
             };
 
             board.Users ??= new List<BoardUser>();

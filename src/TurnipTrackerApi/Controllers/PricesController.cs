@@ -41,7 +41,7 @@ namespace TurnipTallyApi.Controllers
 
             var weekDate = date.ToStartOfWeek();
 
-            var users = _context.BoardUsers.Where(u => u.Id.Equals(boardId) && !u.Deleted).Select(u => u.Id).ToList();
+            var users = _context.BoardUsers.Where(u => u.BoardId.Equals(boardId) && !u.Deleted).Select(u => u.Id).ToList();
 
             var weeks = _context.Weeks.Include(w => w.Records).Include(w => w.BoardUser)
                 .Where(w => w.WeekDate.Equals(weekDate) && users.Contains(w.BoardUserId));
