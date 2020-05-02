@@ -53,7 +53,7 @@ namespace TurnipTallyApi.Controllers
 
             var user = board.Users?.SingleOrDefault(u => u.Id.Equals(userId));
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -73,12 +73,18 @@ namespace TurnipTallyApi.Controllers
 
             var regUser = await _context.RegisteredUsers.FindAsync(User.GetUserId());
 
-            if(board.Users?.Any(u => u.RegisteredUserId.Equals(regUser.Id)) ?? false)
+            if (board.Users?.Any(u => u.RegisteredUserId.Equals(regUser.Id)) ?? false)
             {
                 return BadRequest(new {message = "User is already a member of this board"});
             }
 
-            if (board.Users?.Any(u => u.Name.Equals(model.DisplayName, StringComparison.InvariantCultureIgnoreCase)) ?? false)
+            if (board.Private && !board.EditKey.Equals(model.Password))
+            {
+                return BadRequest(new {message = "Password is incorrect"});
+            }
+
+            if (board.Users?.Any(u => u.Name.Equals(model.DisplayName, StringComparison.InvariantCultureIgnoreCase)) ??
+                false)
             {
                 return BadRequest(new {message = "Display name is already taken"});
             }
@@ -102,7 +108,8 @@ namespace TurnipTallyApi.Controllers
 
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetBoardUser), new {boardId, userId = newUser.Id}, _mapper.Map<BoardUserModel>(newUser));
+            return CreatedAtAction(nameof(GetBoardUser), new {boardId, userId = newUser.Id},
+                _mapper.Map<BoardUserModel>(newUser));
         }
 
         [Route("{userId}")]
@@ -118,7 +125,7 @@ namespace TurnipTallyApi.Controllers
 
             var user = board.Users?.SingleOrDefault(u => u.Id.Equals(userId));
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -131,7 +138,7 @@ namespace TurnipTallyApi.Controllers
 
         private async Task<Board> GetBoard(long boardId)
         {
-            return await _context.Boards.Include(b=>b.Users).SingleOrDefaultAsync(b => b.Id.Equals(boardId));
+            return await _context.Boards.Include(b => b.Users).SingleOrDefaultAsync(b => b.Id.Equals(boardId));
         }
     }
 }

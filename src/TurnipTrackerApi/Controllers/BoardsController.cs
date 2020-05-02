@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TurnipTallyApi.Database;
 using TurnipTallyApi.Database.Entities;
 using TurnipTallyApi.Extensions;
 using TurnipTallyApi.Models.Boards;
 using TurnipTallyApi.Models.BoardUsers;
+using TurnipTallyApi.Services;
 
 namespace TurnipTallyApi.Controllers
 {
@@ -24,11 +22,13 @@ namespace TurnipTallyApi.Controllers
     {
         private readonly IMapper _mapper;
         private readonly TurnipContext _context;
+        private readonly IBoardService _boardService;
 
-        public BoardsController(IMapper mapper, TurnipContext context)
+        public BoardsController(IMapper mapper, TurnipContext context, IBoardService boardService)
         {
             _mapper = mapper;
             _context = context;
+            _boardService = boardService;
         }
 
         [HttpGet]
@@ -109,6 +109,10 @@ namespace TurnipTallyApi.Controllers
             {
                 return NotFound();
             }
+
+            var regUser = await _context.RegisteredUsers.FindAsync(User.GetUserId());
+
+            await _boardService.VerifyWeeks(_context, board, regUser.TimezoneId);
 
             var weeks = board.Users?.SelectMany(u => u.Weeks).ToList();
             var weekDates = weeks?.Any() ?? false

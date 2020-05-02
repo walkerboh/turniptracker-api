@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using TurnipTallyApi.Database;
+using TurnipTallyApi.Database.Entities;
 using TurnipTallyApi.Helpers.Settings;
 using TurnipTallyApi.Services;
 
@@ -76,6 +77,7 @@ namespace TurnipTallyApi
             });
 
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IBoardService, BoardService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
