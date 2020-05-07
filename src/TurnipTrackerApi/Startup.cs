@@ -4,6 +4,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,7 +38,8 @@ namespace TurnipTallyApi
 
             services.AddAutoMapper(typeof(Startup));
 
-            services.AddDbContext<TurnipContext>(options => options.UseSqlite("Data Source=turnip.db"));
+            services.AddDbContext<TurnipContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("TurnipContext")));
 
             var applicationSettingsSection = Configuration.GetSection("ApplicationSettings");
             services.Configure<ApplicationSettings>(applicationSettingsSection);
@@ -78,11 +80,18 @@ namespace TurnipTallyApi
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBoardService, BoardService>();
+
+            services.AddHealthChecks();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, TurnipContext context)
         {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             context.Database.Migrate();
 
             app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
@@ -92,14 +101,18 @@ namespace TurnipTallyApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
+            });
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace TurnipTallyApi.Migrations
 {
@@ -12,8 +13,9 @@ namespace TurnipTallyApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Email = table.Column<string>(nullable: true),
+                    TimezoneId = table.Column<string>(nullable: true),
                     PasswordHash = table.Column<byte[]>(nullable: true),
                     PasswordSalt = table.Column<byte[]>(nullable: true)
                 },
@@ -27,7 +29,7 @@ namespace TurnipTallyApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UrlName = table.Column<string>(nullable: true),
                     DisplayName = table.Column<string>(nullable: true),
                     Private = table.Column<bool>(nullable: false),
@@ -51,10 +53,11 @@ namespace TurnipTallyApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(nullable: true),
                     BoardId = table.Column<long>(nullable: false),
-                    RegisteredUserId = table.Column<long>(nullable: false)
+                    RegisteredUserId = table.Column<long>(nullable: false),
+                    Deleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,7 +82,7 @@ namespace TurnipTallyApi.Migrations
                 {
                     BoardUserId = table.Column<long>(nullable: false),
                     WeekDate = table.Column<DateTime>(nullable: false),
-                    BuyPrice = table.Column<int>(nullable: false)
+                    BuyPrice = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {

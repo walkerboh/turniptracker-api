@@ -11,7 +11,7 @@ namespace TurnipTallyApi.Database.Entities
 
         public DateTime WeekDate { get; set; }
 
-        public int BuyPrice { get; set; }
+        public int? BuyPrice { get; set; }
 
         public ICollection<Record> Records { get; set; }
     }
