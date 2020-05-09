@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Serilog;
 using TurnipTallyApi.Database;
 using TurnipTallyApi.Database.Entities;
 using TurnipTallyApi.Helpers.Settings;
@@ -102,6 +103,8 @@ namespace TurnipTallyApi
             }
 
             //app.UseHttpsRedirection();
+
+            app.UseSerilogRequestLogging();
 
             app.UseRouting();
 

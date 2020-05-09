@@ -11,7 +11,7 @@ namespace TurnipTallyApi.Database.Data
 
             if(!context.RegisteredUsers.Any())
             {
-                var _ =new UserService(context).Create("a.b@com", "password", "Eastern Standard Time").Result;
+                //var _ =new UserService(context).Create("a.b@com", "password", "Eastern Standard Time").Result;
             }
         }
     }

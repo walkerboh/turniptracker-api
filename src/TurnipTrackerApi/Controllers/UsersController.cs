@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TurnipTallyApi.Helpers.Settings;
@@ -40,7 +41,7 @@ namespace TurnipTallyApi.Controllers
 
             if (user == null)
             {
-                return BadRequest(new {message = "Username or password is incorrect"});
+                return BadRequest(new { message = "Username or password is incorrect" });
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -49,9 +50,9 @@ namespace TurnipTallyApi.Controllers
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email)
-                }),
+                        new Claim(ClaimTypes.Name, user.Id.ToString()),
+                        new Claim(ClaimTypes.Email, user.Email)
+                    }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
@@ -74,11 +75,11 @@ namespace TurnipTallyApi.Controllers
             try
             {
                 var user = await _userService.Create(model.Email, model.Password, model.TimezoneId);
-                return CreatedAtAction(nameof(GetById), new {id = user.Id}, new {user.Id, user.Email});
+                return CreatedAtAction(nameof(GetById), new { id = user.Id }, new { user.Id, user.Email });
             }
             catch (ApplicationException ex)
             {
-                return BadRequest(new {message = ex.Message});
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -86,7 +87,7 @@ namespace TurnipTallyApi.Controllers
         [HttpGet("timezones")]
         public IActionResult Timezones()
         {
-            return Ok(TimeZoneInfo.GetSystemTimeZones().Select(tz => new {id = tz.Id, name = tz.DisplayName}));
+            return Ok(TimeZoneInfo.GetSystemTimeZones().Select(tz => new { id = tz.Id, name = tz.DisplayName }));
         }
 
         [HttpGet("{id}")]

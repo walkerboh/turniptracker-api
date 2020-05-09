@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using TurnipTallyApi.Database;
 using TurnipTallyApi.Database.Entities;
 
@@ -18,10 +19,12 @@ namespace TurnipTallyApi.Services
     public class UserService : IUserService
     {
         private readonly TurnipContext _context;
+        private readonly ILogger<UserService> _logger;
 
-        public UserService(TurnipContext context)
+        public UserService(TurnipContext context, ILogger<UserService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public RegisteredUser Authenticate(string email, string password)
@@ -65,6 +68,8 @@ namespace TurnipTallyApi.Services
 
             await _context.RegisteredUsers.AddAsync(user);
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("User registered");
 
             return user;
         }
