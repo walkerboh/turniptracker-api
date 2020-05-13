@@ -6,6 +6,6 @@ namespace TurnipTallyApi.Models.Prices
     {
         public DateTime Date { get; set; }
 
-        public int Price { get; set; }
+        public int? Price { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace TurnipTallyApi.Database.Entities
 
         public Period Period { get; set; }
 
-        public int SellPrice { get; set; }
+        public int? SellPrice { get; set; }
     }
 
     public enum Period
