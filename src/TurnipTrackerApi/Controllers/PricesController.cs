@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using TurnipTallyApi.Database;
 using TurnipTallyApi.Database.Entities;
 using TurnipTallyApi.Extensions;
@@ -15,7 +15,7 @@ using TurnipTallyApi.Models.Prices;
 namespace TurnipTallyApi.Controllers
 {
     [Authorize]
-    [Route("boards/{boardId}")]
+    [Route("prices")]
     [ApiController]
     public class PricesController : ControllerBase
     {
@@ -28,7 +28,7 @@ namespace TurnipTallyApi.Controllers
             _mapper = mapper;
         }
 
-        [Route("prices/{date}")]
+        [Route("boards/{boardId}/weeks/{date}")]
         [HttpGet]
         public async Task<IActionResult> BoardPrices(long boardId, DateTime date)
         {
@@ -41,32 +41,70 @@ namespace TurnipTallyApi.Controllers
 
             var weekDate = date.ToStartOfWeek();
 
-            var users = _context.BoardUsers.Where(u => u.BoardId.Equals(boardId) && !u.Deleted).Select(u => u.Id).ToList();
+            var users = _context.BoardUsers.Where(u => u.BoardId.Equals(boardId) && !u.Deleted).Select(u => u.RegisteredUserId).ToList();
 
-            var weeks = _context.Weeks.Include(w => w.Records).Include(w => w.BoardUser)
-                .Where(w => w.WeekDate.Equals(weekDate) && users.Contains(w.BoardUserId));
+            var weeks = _context.Weeks.Include(w => w.Records).Where(w => w.WeekDate.Equals(weekDate) && users.Contains(w.UserId));
+
+            var modelUsers = new List<PricesUserModel>();
+
+            foreach(var week in weeks)
+            {
+                var u = _mapper.Map<PricesUserModel>(week);
+                var user = board.Users.Single(bu => bu.RegisteredUserId.Equals(week.UserId));
+                u.Name = user.Name;
+                u.UserId = u.UserId;
+                modelUsers.Add(u);
+            }
 
             var model = new BoardPricesModel
             {
                 WeekDate = weekDate,
-                Users = _mapper.Map<IEnumerable<PricesUserModel>>(weeks)
+                Users = modelUsers
             };
 
             return Ok(model);
         }
 
-        [Route("users/{userId}/prices/buy")]
-        [HttpPost]
-        public async Task<IActionResult> Buy(long boardId, long userId, [FromBody] BuyPriceModel model)
+        [Route("users/weeks/{date}")]
+        [HttpGet]
+        public async Task<IActionResult> UserPrices (DateTime date)
         {
-            var board = await GetBoard(boardId);
+            var userId = User.GetUserId();
 
-            if (board == null || board.Deleted)
+            var user = await _context.RegisteredUsers.Include(u => u.Weeks).ThenInclude(w=>w.Records).SingleAsync(u => u.Id.Equals(userId));
+
+            var weekDate = date.ToStartOfWeek();
+
+            var week = user.Weeks.SingleOrDefault(w => w.WeekDate.Equals(weekDate));
+
+            if (week == null)
             {
-                return NotFound();
+                week = new Week
+                {
+                    WeekDate = weekDate
+                };
+                user.Weeks.Add(week);
+
+                await _context.SaveChangesAsync();
             }
 
-            var user = board.Users?.SingleOrDefault(u => u.Id.Equals(userId));
+            var model = new BoardPricesModel
+            {
+                WeekDate = weekDate,
+                Users = new List<PricesUserModel>
+                {
+                    _mapper.Map<PricesUserModel>(week)
+                }
+            };
+
+            return Ok(model);
+        }
+
+        [Route("users/{userId}/buy")]
+        [HttpPost]
+        public async Task<IActionResult> Buy(long userId, [FromBody] BuyPriceModel model)
+        {
+            var user = await _context.RegisteredUsers.FindAsync(userId);
 
             if (user == null)
             {
@@ -76,14 +114,14 @@ namespace TurnipTallyApi.Controllers
             var weekDate = model.Date.ToStartOfWeek();
 
             var week = await _context.Weeks.SingleOrDefaultAsync(w =>
-                w.BoardUserId.Equals(user.Id) && w.WeekDate.Equals(weekDate));
+                w.UserId.Equals(user.Id) && w.WeekDate.Equals(weekDate));
 
             if (week == null)
             {
                 week = new Week
                 {
                     WeekDate = weekDate,
-                    BoardUserId = user.Id
+                    UserId = user.Id
                 };
                 await _context.Weeks.AddAsync(week);
             }
@@ -95,18 +133,11 @@ namespace TurnipTallyApi.Controllers
             return NoContent();
         }
 
-        [Route("users/{userId}/prices/sell")]
+        [Route("users/{userId}/sell")]
         [HttpPost]
-        public async Task<IActionResult> Sell(long boardId, long userId, [FromBody] SellPriceModel model)
+        public async Task<IActionResult> Sell(long userId, [FromBody] SellPriceModel model)
         {
-            var board = await GetBoard(boardId);
-
-            if (board == null || board.Deleted)
-            {
-                return NotFound();
-            }
-
-            var user = board.Users?.SingleOrDefault(u => u.Id.Equals(userId));
+            var user = await _context.RegisteredUsers.FindAsync(userId);
 
             if (user == null)
             {
@@ -116,14 +147,14 @@ namespace TurnipTallyApi.Controllers
             var weekDate = model.Date.ToStartOfWeek();
 
             var week = await _context.Weeks.Include(w => w.Records).SingleOrDefaultAsync(w =>
-                w.BoardUserId.Equals(user.Id) && w.WeekDate.Equals(weekDate));
+                w.UserId.Equals(user.Id) && w.WeekDate.Equals(weekDate));
 
             if (week == null)
             {
                 week = new Week
                 {
                     WeekDate = weekDate,
-                    BoardUserId = user.Id
+                    UserId = user.Id
                 };
                 await _context.Weeks.AddAsync(week);
             }

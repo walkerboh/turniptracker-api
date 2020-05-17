@@ -4,7 +4,7 @@ namespace TurnipTallyApi.Database.Entities
 {
     public class Record
     {
-        public long BoardUserId { get; set; }
+        public long UserId { get; set; }
 
         public DateTime WeekDate { get; set; }
 

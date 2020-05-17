@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using TurnipTallyApi.Database.Entities;
 
 namespace TurnipTallyApi.Models.Prices
@@ -15,6 +14,8 @@ namespace TurnipTallyApi.Models.Prices
     public class PricesUserModel
     {
         public long BoardUserId { get; set; }
+
+        public long UserId { get; set; }
 
         public string Name { get; set; }
 

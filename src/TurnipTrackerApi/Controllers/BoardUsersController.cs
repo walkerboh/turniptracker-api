@@ -92,14 +92,7 @@ namespace TurnipTallyApi.Controllers
             var newUser = new BoardUser
             {
                 Name = model.DisplayName,
-                RegisteredUser = regUser,
-                Weeks = new List<Week>
-                {
-                    new Week
-                    {
-                        WeekDate = DateTimeExtensions.NowInLocale(regUser.TimezoneId).ToStartOfWeek()
-                    }
-                }
+                RegisteredUser = regUser
             };
 
             board.Users ??= new List<BoardUser>();

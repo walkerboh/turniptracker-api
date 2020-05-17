@@ -49,6 +49,25 @@ namespace TurnipTallyApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Weeks",
+                columns: table => new
+                {
+                    UserId = table.Column<long>(nullable: false),
+                    WeekDate = table.Column<DateTime>(nullable: false),
+                    BuyPrice = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Weeks", x => new { x.UserId, x.WeekDate });
+                    table.ForeignKey(
+                        name: "FK_Weeks_RegisteredUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "RegisteredUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BoardUsers",
                 columns: table => new
                 {
@@ -77,42 +96,23 @@ namespace TurnipTallyApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Weeks",
-                columns: table => new
-                {
-                    BoardUserId = table.Column<long>(nullable: false),
-                    WeekDate = table.Column<DateTime>(nullable: false),
-                    BuyPrice = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Weeks", x => new { x.BoardUserId, x.WeekDate });
-                    table.ForeignKey(
-                        name: "FK_Weeks_BoardUsers_BoardUserId",
-                        column: x => x.BoardUserId,
-                        principalTable: "BoardUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Records",
                 columns: table => new
                 {
-                    BoardUserId = table.Column<long>(nullable: false),
+                    UserId = table.Column<long>(nullable: false),
                     WeekDate = table.Column<DateTime>(nullable: false),
                     Day = table.Column<string>(nullable: false),
                     Period = table.Column<string>(nullable: false),
-                    SellPrice = table.Column<int>(nullable: false)
+                    SellPrice = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Records", x => new { x.BoardUserId, x.WeekDate, x.Day, x.Period });
+                    table.PrimaryKey("PK_Records", x => new { x.UserId, x.WeekDate, x.Day, x.Period });
                     table.ForeignKey(
-                        name: "FK_Records_Weeks_BoardUserId_WeekDate",
-                        columns: x => new { x.BoardUserId, x.WeekDate },
+                        name: "FK_Records_Weeks_UserId_WeekDate",
+                        columns: x => new { x.UserId, x.WeekDate },
                         principalTable: "Weeks",
-                        principalColumns: new[] { "BoardUserId", "WeekDate" },
+                        principalColumns: new[] { "UserId", "WeekDate" },
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -135,16 +135,16 @@ namespace TurnipTallyApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Records");
-
-            migrationBuilder.DropTable(
-                name: "Weeks");
-
-            migrationBuilder.DropTable(
                 name: "BoardUsers");
 
             migrationBuilder.DropTable(
+                name: "Records");
+
+            migrationBuilder.DropTable(
                 name: "Boards");
+
+            migrationBuilder.DropTable(
+                name: "Weeks");
 
             migrationBuilder.DropTable(
                 name: "RegisteredUsers");

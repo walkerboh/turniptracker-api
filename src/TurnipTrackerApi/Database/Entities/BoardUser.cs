@@ -16,8 +16,6 @@ namespace TurnipTallyApi.Database.Entities
 
         public RegisteredUser RegisteredUser { get; set; }
 
-        public ICollection<Week> Weeks { get; set; }
-
         public bool Deleted { get; set; }
     }
 }

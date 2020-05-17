@@ -5,9 +5,9 @@ namespace TurnipTallyApi.Database.Entities
 {
     public class Week
     {
-        public long BoardUserId { get; set; }
+        public long UserId { get; set; }
 
-        public BoardUser BoardUser { get; set; }
+        public RegisteredUser User { get; set; }
 
         public DateTime WeekDate { get; set; }
 

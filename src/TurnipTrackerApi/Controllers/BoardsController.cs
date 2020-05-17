@@ -102,8 +102,7 @@ namespace TurnipTallyApi.Controllers
         [HttpGet("{id}/weeks")]
         public async Task<IActionResult> BoardWeeks(long id)
         {
-            var board = await _context.Boards.Include(b => b.Users).ThenInclude(u => u.Weeks)
-                .SingleOrDefaultAsync(b => b.Id.Equals(id));
+            var board = await _context.Boards.Include(b => b.Users).SingleOrDefaultAsync(b => b.Id.Equals(id));
 
             if (board == null || board.Deleted)
             {
@@ -114,9 +113,10 @@ namespace TurnipTallyApi.Controllers
 
             await _boardService.VerifyWeeks(_context, board, regUser.TimezoneId);
 
-            var weeks = board.Users?.SelectMany(u => u.Weeks).ToList();
-            var weekDates = weeks?.Any() ?? false
-                ? weeks.Select(w => w.WeekDate).Distinct()
+            var userIds = board.Users?.Select(u => u.RegisteredUserId).ToList();
+            var weeks = _context.Weeks.Where(w => userIds.Contains(w.UserId));
+            var weekDates = weeks.Any()
+                ? weeks.Select(w => w.WeekDate).Distinct().OrderByDescending(d => d)
                 : Enumerable.Empty<DateTime>();
 
             return Ok(weekDates);
@@ -139,14 +139,7 @@ namespace TurnipTallyApi.Controllers
             var boardUser = new BoardUser
             {
                 RegisteredUserId = board.OwnerId,
-                Name = boardModel.UserDisplayName,
-                Weeks = new List<Week>
-                {
-                    new Week
-                    {
-                        WeekDate = DateTimeExtensions.NowInLocale(regUser.TimezoneId).ToStartOfWeek()
-                    }
-                }
+                Name = boardModel.UserDisplayName
             };
 
             board.Users = new List<BoardUser>

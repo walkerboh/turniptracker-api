@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using TurnipTallyApi.Database;
 using TurnipTallyApi.Database.Entities;
 using TurnipTallyApi.Extensions;
@@ -17,9 +18,13 @@ namespace TurnipTallyApi.Services
         {
             var currentWeek = DateTimeExtensions.NowInLocale(timezoneId).ToStartOfWeek();
 
-            foreach(var user in board.Users)
+            var userIds = board.Users.Select(bu => bu.RegisteredUserId);
+
+            foreach(var userId in userIds)
             {
-                if (!user.Weeks.Any(w => w.WeekDate.Equals(currentWeek)))
+                var user = await context.RegisteredUsers.Include(u => u.Weeks).SingleOrDefaultAsync(u => u.Id.Equals(userId));
+
+                if(!user.Weeks.Any(w=>w.WeekDate.Equals(currentWeek)))
                 {
                     user.Weeks.Add(new Week
                     {

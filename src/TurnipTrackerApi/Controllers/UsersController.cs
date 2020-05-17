@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -7,10 +8,16 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SQLitePCL;
+using TurnipTallyApi.Database;
+using TurnipTallyApi.Database.Entities;
+using TurnipTallyApi.Extensions;
 using TurnipTallyApi.Helpers.Settings;
+using TurnipTallyApi.Models.Boards;
+using TurnipTallyApi.Models.Prices;
 using TurnipTallyApi.Models.Users;
 using TurnipTallyApi.Services;
 using ApplicationException = TurnipTallyApi.Exceptions.ApplicationException;
@@ -25,12 +32,15 @@ namespace TurnipTallyApi.Controllers
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly ApplicationSettings _settings;
+        private readonly TurnipContext _context;
 
-        public UsersController(IMapper mapper, IUserService userService, IOptions<ApplicationSettings> settings)
+        public UsersController(TurnipContext context, IMapper mapper, IUserService userService,
+            IOptions<ApplicationSettings> settings)
         {
             _mapper = mapper;
             _userService = userService;
             _settings = settings.Value;
+            _context = context;
         }
 
         [AllowAnonymous]
@@ -41,7 +51,7 @@ namespace TurnipTallyApi.Controllers
 
             if (user == null)
             {
-                return BadRequest(new { message = "Username or password is incorrect" });
+                return BadRequest(new {message = "Username or password is incorrect"});
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -50,9 +60,9 @@ namespace TurnipTallyApi.Controllers
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                        new Claim(ClaimTypes.Name, user.Id.ToString()),
-                        new Claim(ClaimTypes.Email, user.Email)
-                    }),
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email)
+                }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
@@ -75,11 +85,22 @@ namespace TurnipTallyApi.Controllers
             try
             {
                 var user = await _userService.Create(model.Email, model.Password, model.TimezoneId);
-                return CreatedAtAction(nameof(GetById), new { id = user.Id }, new { user.Id, user.Email });
+
+                var currentWeek = DateTimeExtensions.NowInLocale(model.TimezoneId).ToStartOfWeek();
+
+                user.Weeks = new List<Week>
+                {
+                    new Week
+                    {
+                        WeekDate = currentWeek
+                    }
+                };
+
+                return CreatedAtAction(nameof(GetById), new {id = user.Id}, new {user.Id, user.Email});
             }
             catch (ApplicationException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new {message = ex.Message});
             }
         }
 
@@ -87,7 +108,7 @@ namespace TurnipTallyApi.Controllers
         [HttpGet("timezones")]
         public IActionResult Timezones()
         {
-            return Ok(TimeZoneInfo.GetSystemTimeZones().Select(tz => new { id = tz.Id, name = tz.DisplayName }));
+            return Ok(TimeZoneInfo.GetSystemTimeZones().Select(tz => new {id = tz.Id, name = tz.DisplayName}));
         }
 
         [HttpGet("{id}")]
@@ -96,6 +117,38 @@ namespace TurnipTallyApi.Controllers
             var user = _userService.GetById(id);
             var model = _mapper.Map<UserModel>(user);
             return Ok(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var user = await _context.RegisteredUsers.Include(u => u.Weeks).Include(u => u.OwnedBoards)
+                .Include(u => u.BoardUsers).ThenInclude(bu => bu.Board)
+                .SingleOrDefaultAsync(u => u.Id.Equals(User.GetUserId()));
+
+            if(user == null)
+            {
+                return NotFound();
+            }
+
+            var weekDate = DateTimeExtensions.NowInLocale(user.TimezoneId).ToStartOfWeek();
+
+            if(!user.Weeks.Any(w=>w.WeekDate.Equals(weekDate)))
+            {
+                user.Weeks.Add(new Week
+                {
+                    WeekDate = weekDate
+                });
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new UserDetailsModel
+            {
+                Id = user.Id,
+                Weeks = user.Weeks.Select(w => w.WeekDate).OrderByDescending(d => d),
+                OwnedBoards = _mapper.Map<IEnumerable<BoardModel>>(user.OwnedBoards),
+                MemberBoards = _mapper.Map<IEnumerable<BoardModel>>(user.BoardUsers.Select(bu => bu.Board))
+            });
         }
     }
 }

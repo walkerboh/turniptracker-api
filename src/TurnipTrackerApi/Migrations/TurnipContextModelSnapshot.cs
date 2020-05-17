@@ -81,7 +81,7 @@ namespace TurnipTallyApi.Migrations
 
             modelBuilder.Entity("TurnipTallyApi.Database.Entities.Record", b =>
                 {
-                    b.Property<long>("BoardUserId")
+                    b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("WeekDate")
@@ -96,7 +96,7 @@ namespace TurnipTallyApi.Migrations
                     b.Property<int?>("SellPrice")
                         .HasColumnType("integer");
 
-                    b.HasKey("BoardUserId", "WeekDate", "Day", "Period");
+                    b.HasKey("UserId", "WeekDate", "Day", "Period");
 
                     b.ToTable("Records");
                 });
@@ -127,7 +127,7 @@ namespace TurnipTallyApi.Migrations
 
             modelBuilder.Entity("TurnipTallyApi.Database.Entities.Week", b =>
                 {
-                    b.Property<long>("BoardUserId")
+                    b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("WeekDate")
@@ -136,7 +136,7 @@ namespace TurnipTallyApi.Migrations
                     b.Property<int?>("BuyPrice")
                         .HasColumnType("integer");
 
-                    b.HasKey("BoardUserId", "WeekDate");
+                    b.HasKey("UserId", "WeekDate");
 
                     b.ToTable("Weeks");
                 });
@@ -169,16 +169,16 @@ namespace TurnipTallyApi.Migrations
                 {
                     b.HasOne("TurnipTallyApi.Database.Entities.Week", "Week")
                         .WithMany("Records")
-                        .HasForeignKey("BoardUserId", "WeekDate")
+                        .HasForeignKey("UserId", "WeekDate")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("TurnipTallyApi.Database.Entities.Week", b =>
                 {
-                    b.HasOne("TurnipTallyApi.Database.Entities.BoardUser", "BoardUser")
+                    b.HasOne("TurnipTallyApi.Database.Entities.RegisteredUser", "User")
                         .WithMany("Weeks")
-                        .HasForeignKey("BoardUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

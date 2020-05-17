@@ -20,5 +20,7 @@ namespace TurnipTallyApi.Database.Entities
         public ICollection<BoardUser> BoardUsers { get; set; }
 
         public ICollection<Board> OwnedBoards { get; set; }
+
+        public ICollection<Week> Weeks { get; set; }
     }
 }

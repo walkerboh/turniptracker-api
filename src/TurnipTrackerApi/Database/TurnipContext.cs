@@ -29,7 +29,6 @@ namespace TurnipTallyApi.Database
             {
                 user.HasKey(c => c.Id);
                 user.Property(c => c.Id).ValueGeneratedOnAdd();
-                user.HasMany(u => u.Weeks).WithOne(w => w.BoardUser).HasForeignKey(w => w.BoardUserId).IsRequired();
                 user.HasOne(bu => bu.RegisteredUser).WithMany(ru => ru.BoardUsers)
                     .HasForeignKey(bu => bu.RegisteredUserId);
             });
@@ -38,14 +37,14 @@ namespace TurnipTallyApi.Database
             {
                 week.HasKey(w => new
                 {
-                    w.BoardUserId, w.WeekDate
+                    w.UserId, w.WeekDate
                 });
-                week.HasMany(w => w.Records).WithOne(r => r.Week).HasForeignKey(r => new {r.BoardUserId, r.WeekDate}).IsRequired();
+                week.HasMany(w => w.Records).WithOne(r => r.Week).HasForeignKey(r => new {r.UserId, r.WeekDate}).IsRequired();
             });
 
             modelBuilder.Entity<Record>(record => 
             { 
-                record.HasKey(r => new {r.BoardUserId, r.WeekDate, r.Day, r.Period});
+                record.HasKey(r => new {r.UserId, r.WeekDate, r.Day, r.Period});
                 record.Property(r => r.Day)
                     .HasConversion(d => d.ToString(), d => (DayOfWeek) Enum.Parse(typeof(DayOfWeek), d));
                 record.Property(r => r.Period)
@@ -56,6 +55,7 @@ namespace TurnipTallyApi.Database
             {
                 user.HasKey(u => u.Id);
                 user.Property(u => u.Id).ValueGeneratedOnAdd();
+                user.HasMany(u => u.Weeks).WithOne(w => w.User).HasForeignKey(w => w.UserId).IsRequired();
             });
         }
     }

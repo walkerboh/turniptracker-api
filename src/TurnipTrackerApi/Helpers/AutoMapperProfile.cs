@@ -25,7 +25,6 @@ namespace TurnipTallyApi.Helpers
             CreateMap<Board, UserBoardsModel>();
 
             CreateMap<Week, PricesUserModel>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BoardUser.Name))
                 .ForMember(dest => dest.Prices, opt => opt.MapFrom(src => src.Records));
             CreateMap<Record, PricesRecordModel>();
         }
