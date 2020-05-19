@@ -53,7 +53,7 @@ namespace TurnipTallyApi.Controllers
             }
 
             boards.AddRange(user.OwnedBoards);
-            boards = boards.Distinct().ToList();
+            boards = boards.Where(b => !b.Deleted).Distinct().ToList();
 
             return Ok(_mapper.Map<IEnumerable<UserBoardsModel>>(boards));
         }
@@ -71,7 +71,7 @@ namespace TurnipTallyApi.Controllers
 
             var regUserId = User.GetUserId();
 
-            if (board.OwnerId.Equals(regUserId) || board.Users.Any(u => u.RegisteredUserId.Equals(regUserId)))
+            if (board.Users.Any(u => u.RegisteredUserId.Equals(regUserId)))
             {
                 return Ok(_mapper.Map<BoardModel>(board));
             }
@@ -91,7 +91,7 @@ namespace TurnipTallyApi.Controllers
 
             var regUserId = User.GetUserId();
 
-            if (board.OwnerId.Equals(regUserId) || board.Users.Any(u => u.RegisteredUserId.Equals(regUserId)))
+            if (board.Users.Any(u => u.RegisteredUserId.Equals(regUserId)))
             {
                 return Ok(_mapper.Map<BoardModel>(board));
             }
@@ -161,6 +161,11 @@ namespace TurnipTallyApi.Controllers
             if (board == null || board.Deleted)
             {
                 return NotFound();
+            }
+
+            if(!board.OwnerId.Equals(User.GetUserId()))
+            {
+                return BadRequest("User does not own the board.");
             }
 
             board.Deleted = true;

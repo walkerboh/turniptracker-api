@@ -126,14 +126,14 @@ namespace TurnipTallyApi.Controllers
                 .Include(u => u.BoardUsers).ThenInclude(bu => bu.Board)
                 .SingleOrDefaultAsync(u => u.Id.Equals(User.GetUserId()));
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
             var weekDate = DateTimeExtensions.NowInLocale(user.TimezoneId).ToStartOfWeek();
 
-            if(!user.Weeks.Any(w=>w.WeekDate.Equals(weekDate)))
+            if (!user.Weeks.Any(w => w.WeekDate.Equals(weekDate)))
             {
                 user.Weeks.Add(new Week
                 {
@@ -146,8 +146,10 @@ namespace TurnipTallyApi.Controllers
             {
                 Id = user.Id,
                 Weeks = user.Weeks.Select(w => w.WeekDate).OrderByDescending(d => d),
-                OwnedBoards = _mapper.Map<IEnumerable<BoardModel>>(user.OwnedBoards),
-                MemberBoards = _mapper.Map<IEnumerable<BoardModel>>(user.BoardUsers.Select(bu => bu.Board))
+                OwnedBoards = _mapper.Map<IEnumerable<BoardModel>>(user.OwnedBoards.Where(b => !b.Deleted)),
+                MemberBoards =
+                    _mapper.Map<IEnumerable<BoardModel>>(user.BoardUsers.Select(bu => bu.Board)
+                        .Where(b => !b.Deleted))
             });
         }
     }

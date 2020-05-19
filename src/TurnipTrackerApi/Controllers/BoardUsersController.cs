@@ -116,7 +116,7 @@ namespace TurnipTallyApi.Controllers
                 return NotFound();
             }
 
-            var user = board.Users?.SingleOrDefault(u => u.Id.Equals(userId));
+            var user = board.Users?.SingleOrDefault(u => u.RegisteredUserId.Equals(userId));
 
             if (user == null)
             {
