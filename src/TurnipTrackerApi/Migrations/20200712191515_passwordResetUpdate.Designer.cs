@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TurnipTallyApi.Database;
@@ -9,9 +10,10 @@ using TurnipTallyApi.Database;
 namespace TurnipTallyApi.Migrations
 {
     [DbContext(typeof(TurnipContext))]
-    partial class TurnipContextModelSnapshot : ModelSnapshot
+    [Migration("20200712191515_passwordResetUpdate")]
+    partial class passwordResetUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

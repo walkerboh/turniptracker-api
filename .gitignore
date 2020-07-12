@@ -342,3 +342,4 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /src/TurnipTrackerApi/logs
+/src/TurnipTrackerApi/credentials.json

@@ -108,7 +108,82 @@ namespace TurnipTallyApi.Controllers
         [HttpGet("timezones")]
         public IActionResult Timezones()
         {
-            return Ok(TimeZoneInfo.GetSystemTimeZones().Select(tz => new {id = tz.Id, name = tz.DisplayName}));
+            return Ok(_context.Timezones.OrderBy(t => t.Order));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("passwordResetEmail")]
+        public async Task<IActionResult> PasswordResetEmail([FromBody] PasswordEmailModel model)
+        {
+            if (string.IsNullOrEmpty(model.Email))
+            {
+                return BadRequest(new {message = "Email must be provided to reset password."});
+            }
+
+            await _userService.SendPasswordReset(model.Email);
+
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("passwordReset/{key}")]
+        public async Task<IActionResult> PasswordResetVerify(Guid key)
+        {
+            await _context.CleanPasswordResets();
+
+            var reset = await _context.PasswordResets.FirstOrDefaultAsync(pr => pr.Key.Equals(key));
+
+            if(reset == null)
+            {
+                return NotFound();
+            }
+
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("passwordReset")]
+        public async Task<IActionResult> PasswordReset([FromBody] UpdatePasswordModel model)
+        {
+            if(!model.Key.HasValue || string.IsNullOrEmpty(model.Password))
+            {
+                return BadRequest();
+            }
+
+            await _context.CleanPasswordResets();
+
+            var reset = await _context.PasswordResets.FirstOrDefaultAsync(pr => pr.Key.Equals(model.Key.Value));
+
+            if (reset == null || reset.ExpiryDate < DateTime.UtcNow)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                await _userService.UpdatePassword(reset.RegisteredUserId, model.Password);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
+
+            return NoContent();
+        }
+
+        [HttpPost("updatePassword")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordModel model)
+        {
+            try
+            {
+                await _userService.UpdatePassword(User.GetUserId(), model.Password);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
+
+            return NoContent();
         }
 
         [HttpGet("{id}")]

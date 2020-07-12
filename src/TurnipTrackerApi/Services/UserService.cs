@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TurnipTallyApi.Database;
 using TurnipTallyApi.Database.Entities;
@@ -14,17 +15,21 @@ namespace TurnipTallyApi.Services
         RegisteredUser Authenticate(string email, string password);
         Task<RegisteredUser> Create(string email, string password, string timezoneId);
         RegisteredUser GetById(long id);
+        Task SendPasswordReset(string email);
+        Task UpdatePassword(long id, string newPassword);
     }
 
     public class UserService : IUserService
     {
         private readonly TurnipContext _context;
         private readonly ILogger<UserService> _logger;
+        private readonly IEmailService _email;
 
-        public UserService(TurnipContext context, ILogger<UserService> logger)
+        public UserService(TurnipContext context, ILogger<UserService> logger, IEmailService email)
         {
             _context = context;
             _logger = logger;
+            _email = email;
         }
 
         public RegisteredUser Authenticate(string email, string password)
@@ -51,16 +56,16 @@ namespace TurnipTallyApi.Services
                 throw new ApplicationException("Password is required");
             }
 
-            if (_context.RegisteredUsers.Any(u => u.Email.Equals(email)))
+            if (_context.RegisteredUsers.Any(u => u.Email.Equals(email.ToLowerInvariant())))
             {
-                throw new Exceptions.ApplicationException($"The email {email} is already registered");
+                throw new ApplicationException($"The email {email} is already registered");
             }
 
             (byte[] hash, byte[] salt) = HashPassword(password);
 
             var user = new RegisteredUser
             {
-                Email = email,
+                Email = email.ToLowerInvariant(),
                 PasswordHash = hash,
                 PasswordSalt = salt,
                 TimezoneId = timezoneId
@@ -77,6 +82,48 @@ namespace TurnipTallyApi.Services
         public RegisteredUser GetById(long id)
         {
             return _context.RegisteredUsers.Find(id);
+        }
+
+        public async Task UpdatePassword(long id, string newPassword)
+        {
+            var user = await _context.RegisteredUsers.SingleOrDefaultAsync(ru => ru.Id.Equals(id));
+
+            if(user == null)
+            {
+                throw new ApplicationException("User not found for password reset");
+            }
+
+            var (hash, salt) = HashPassword(newPassword);
+
+            user.PasswordHash = hash;
+            user.PasswordSalt = salt;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SendPasswordReset(string email)
+        {
+            var user = await _context.RegisteredUsers.FirstOrDefaultAsync(ru =>
+                ru.Email.Equals(email.ToLowerInvariant()));
+
+            if(user == null)
+            {
+                return;
+            }
+
+            var passwordReset = new PasswordReset
+            {
+                RegisteredUserId = user.Id,
+                ExpiryDate = DateTime.UtcNow.AddMinutes(30),
+                Key = Guid.NewGuid()
+            };
+
+            await _context.PasswordResets.AddAsync(passwordReset);
+            await _context.SaveChangesAsync();
+
+            var body = GeneratePasswordResetEmailBody(passwordReset.Key);
+
+            _email.SendEmail(user.Email, body, "Turnip Tally Password Reset", false);
         }
 
         private static (byte[] hash, byte[] salt) HashPassword(string password)
@@ -106,6 +153,12 @@ namespace TurnipTallyApi.Services
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
 
             return !computedHash.Where((t, i) => t != hash[i]).Any();
+        }
+
+        private static string GeneratePasswordResetEmailBody(Guid key)
+        {
+            return
+                $"Hello,\r\n\r\nIt looks you have requested a password reset. Here is the link to reset your password, it is valid for 20 minutes:\r\n\r\nhttps://turniptally.com/resetPassword?key={key}\r\n\r\nIf you didn't request a password reset, please reply to this email.\r\n\r\nTurnip Tally";
         }
     }
 }

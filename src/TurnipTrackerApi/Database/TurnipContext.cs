@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TurnipTallyApi.Database.Entities;
 
@@ -11,6 +13,8 @@ namespace TurnipTallyApi.Database
         public DbSet<Week> Weeks { get; set; }
         public DbSet<Record> Records { get; set; }
         public DbSet<RegisteredUser> RegisteredUsers { get; set; }
+        public DbSet<PasswordReset> PasswordResets { get; set; }
+        public DbSet<Timezone> Timezones { get; set; }
 
         public TurnipContext(DbContextOptions options) : base(options) { }
 
@@ -57,6 +61,21 @@ namespace TurnipTallyApi.Database
                 user.Property(u => u.Id).ValueGeneratedOnAdd();
                 user.HasMany(u => u.Weeks).WithOne(w => w.User).HasForeignKey(w => w.UserId).IsRequired();
             });
+
+            modelBuilder.Entity<PasswordReset>(pr =>
+            {
+
+                pr.HasKey(p => p.Key);
+                pr.Property(p => p.ExpiryDate).IsRequired();
+                pr.Property(p => p.Key).IsRequired();
+            });
+        }
+
+        public async Task CleanPasswordResets()
+        {
+            var oldPasswordResets = PasswordResets.Where(pr => pr.ExpiryDate < DateTime.UtcNow);
+            PasswordResets.RemoveRange(oldPasswordResets);
+            await SaveChangesAsync();
         }
     }
 }

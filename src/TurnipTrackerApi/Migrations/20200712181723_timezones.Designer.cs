@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TurnipTallyApi.Database;
@@ -9,9 +10,10 @@ using TurnipTallyApi.Database;
 namespace TurnipTallyApi.Migrations
 {
     [DbContext(typeof(TurnipContext))]
-    partial class TurnipContextModelSnapshot : ModelSnapshot
+    [Migration("20200712181723_timezones")]
+    partial class timezones
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,17 +83,19 @@ namespace TurnipTallyApi.Migrations
 
             modelBuilder.Entity("TurnipTallyApi.Database.Entities.PasswordReset", b =>
                 {
-                    b.Property<Guid>("Key")
+                    b.Property<long>("RegisteredUserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<long>("RegisteredUserId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.HasKey("Key");
+                    b.HasKey("RegisteredUserId");
 
                     b.ToTable("PasswordResets");
                 });
@@ -149,9 +153,6 @@ namespace TurnipTallyApi.Migrations
 
                     b.Property<string>("DisplayName")
                         .HasColumnType("text");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Serilog;
 using TurnipTallyApi.Database;
+using TurnipTallyApi.Database.Data;
 using TurnipTallyApi.Database.Entities;
 using TurnipTallyApi.Helpers.Settings;
 using TurnipTallyApi.Services;
@@ -43,7 +44,8 @@ namespace TurnipTallyApi
                 options.UseNpgsql(Configuration.GetConnectionString("TurnipContext")));
 
             var applicationSettingsSection = Configuration.GetSection("ApplicationSettings");
-            services.Configure<ApplicationSettings>(applicationSettingsSection);
+            services.Configure<ApplicationSettings>(applicationSettingsSection)
+                .Configure<EmailSettings>(Configuration.GetSection("Email"));
 
             var applicationSettings = applicationSettingsSection.Get<ApplicationSettings>();
             var key = Encoding.ASCII.GetBytes(applicationSettings.Secret);
@@ -81,6 +83,7 @@ namespace TurnipTallyApi
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBoardService, BoardService>();
+            services.AddTransient<IEmailService, EmailService>();
 
             services.AddHealthChecks();
         }
@@ -94,6 +97,8 @@ namespace TurnipTallyApi
             });
 
             context.Database.Migrate();
+
+            TurnipInitializer.Initialize(context, env);
 
             app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
